@@ -21,7 +21,7 @@ with open('/home/borady/Documents/tagaddod/tagaddod-d8ffe--N4SUsENXI1OF1qf8VxT-e
   data4 = json.load(f)
 
 
-df1 = DataFrame.from_dict(data4, orient='index')
+df1 = DataFrame.from_dict(data1, orient='index')
 df1 = df1.astype({"latitude": float, "longitude": float})
 
 df1.dropna(subset=['longitude','latitude'],inplace=True)
@@ -29,15 +29,20 @@ df1.dropna(subset=['longitude','latitude'],inplace=True)
 # df1.drop('meta-data',inplace=True)
 print(df1)
 
-geomtry = [Point(xy) for xy in zip(df1['longitude'], df1['latitude'])]
-gdf = GeoDataFrame(df1, geometry=geomtry)
-print(gdf)
+## a df for every dev id
+for item in df1.device_id.drop_duplicates().tolist():
+  geomtry = [Point(xy) for xy in zip(df1['longitude'], df1['latitude'])]
+  gdf = GeoDataFrame(df1, geometry=geomtry)
+  print(gdf)
 
-gdf.to_csv(path+f"/csv/gdf4",index=False)
+  if item == 'N/A':
+    item = 'Not Applicable'
 
-world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-egypt = world.loc[world.name=='Egypt']
-gdf.plot(ax=egypt.plot(figsize=(10, 6)), marker='o', color='red', markersize=15)
+  gdf.to_csv(path+f"/csv/{item}",index=False)
 
-# plt.scatter(x=df1['longitude'], y=df1['latitude'])
-plt.show()
+  world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+  egypt = world.loc[world.name=='Egypt']
+  gdf.plot(ax=egypt.plot(figsize=(10, 6)), marker='o', color='red', markersize=15)
+
+  # plt.scatter(x=df1['longitude'], y=df1['latitude'])
+  plt.show()
